@@ -1,5 +1,5 @@
 {
-  "domain": "{yourDomain}",
-  "clientId": "{yourClientId}",
-  "audience": "{yourApiIdentifier}"
+  "domain": "dev-8i8yl1kvr82aymfv.us.auth0.com",
+  "clientId": "UNVAd93n7vPShEtOzihCkW4nKnPaRQan",
+  "audience": "http://localhost:3000"
 }
