@@ -1,48 +1,49 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom"; // Import Routes
-import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
-import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
-import ProtectedComponent from "./ProtectedComponent.js";
-import Default from "./Default.js";
+import { Router, Route, Switch } from "react-router-dom";
+import { Container } from "reactstrap";
 
-const oktaConfig = {
-  clientId: process.env.REACT_APP_OKTA_CLIENT_ID,
-  issuer: process.env.REACT_APP_OKTA_ISSUER,
-  redirectUri: process.env.REACT_APP_OKTA_REDIRECT_URI,
-  scopes: ["openid", "profile", "email"],
-  pkce: true,
-};
+import Loading from "./components/Loading";
+import NavBar from "./components/NavBar";
+import Footer from "./components/Footer";
+import Home from "./views/Home";
+import Profile from "./views/Profile";
+import ExternalApi from "./views/ExternalApi";
+import { useAuth0 } from "@auth0/auth0-react";
+import history from "./utils/history";
 
-const oktaAuth = new OktaAuth(oktaConfig);
+// styles
+import "./App.css";
 
-const restoreOriginalUri = async (_oktaAuth, originalUri) => {
-  window.history.replaceState(
-    toRelativeUrl(originalUri || "/", window.location.origin)
-  );
-};
+// fontawesome
+import initFontAwesome from "./utils/initFontAwesome";
+initFontAwesome();
 
-function App() {
+const App = () => {
+  const { isLoading, error } = useAuth0();
+
+  if (error) {
+    return <div>Oops... {error.message}</div>;
+  }
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
-    <Router>
-      <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
-        <Routes>
-          {/* Wrap Route components in Routes */}
-          <Route path="/login/callback" element={<LoginCallback />} />
-          {/* Use element prop instead of component prop */}
-          <Route
-            path="/protected"
-            element={
-              <SecureRoute>
-                <ProtectedComponent />
-              </SecureRoute>
-            }
-          />
-          {/* For SecureRoute, you may need to adjust or use a different approach if SecureRoute does not directly support the element prop */}
-          <Route path="/" element={<Default />} />
-        </Routes>
-      </Security>
+    <Router history={history}>
+      <div id="app" className="d-flex flex-column h-100">
+        <NavBar />
+        <Container className="flex-grow-1 mt-5">
+          <Switch>
+            <Route path="/" exact component={Home} />
+            <Route path="/profile" component={Profile} />
+            <Route path="/external-api" component={ExternalApi} />
+          </Switch>
+        </Container>
+        <Footer />
+      </div>
     </Router>
   );
-}
+};
 
 export default App;
